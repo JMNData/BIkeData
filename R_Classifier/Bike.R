@@ -1,5 +1,6 @@
 #Add Libraries
 library("e1071")
+library("Metrics")
 
 #Set Globals
 setwd("C:\\Users\\Administrator\\Documents\\GitHub\\BIkeData")
@@ -12,16 +13,31 @@ attach(Train)
 #REarrange Structure to match SVM input
 Test = cbind(Test, Hour = as.POSIXlt(Test[,1])$hour)
 Train1 = cbind(Train, Hour = as.POSIXlt(Train[,1])$hour)
-Train2 = Train1[2:13]
-Train3 = subset(Train2, select = -casual)
-Train4 = subset(Train3, select = -registered)
-model = svm(count~., data=Train4)
+Train1 = Train1[2:13]
+Train1 = subset(Train1, select = -casual)
+Train1 = subset(Train1, select = -registered)
+
+#Train Data
+model.svm = svm(count~., data=Train1)
+print(model.svm)
+summary(model.svm)
+
+model.glm = glm(count~., data=Train1)
+print(model.glm)
+summary(model.glm)
 
 #Predict using SVM model, Wirte back to Train to see results
-PredictedTrain = cbind(Train, predict = as.integer(predict(model, Train1[,-1], interval="predict")))
-PredictedTest = cbind(Test, predict = as.integer(predict(model, Test[,-1], interval="predict")))
+Predicted.Train.svm = cbind(Train, predict = as.integer(predict(model.svm, Train1[,-1], interval="predict")))
+rmsle(Predicted.Train.svm$count, Predicted.Train.svm$predict)
+Predicted.Test.svm = cbind(Test, predict = as.integer(predict(model.svm, Test[,-1], interval="predict")))
 
-print(model)
-summary(model)
+#Predict using GLM model, Wirte back to Train to see results
+Predicted.Traing.glm = cbind(Train, predict = as.integer(predict(model.glm, Train1[,-1], interval="predict")))
+rmsle(Predicted.Train.glm$count, Predicted.Train.glm$predict)
+Predicted.Test.glm = cbind(Test, predict = as.integer(predict(model.glm, Test[,-1], interval="predict")))
+
+
+
+
 
 
