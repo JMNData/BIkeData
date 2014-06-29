@@ -1,6 +1,8 @@
 #Add Libraries
 library("e1071")
 library("Metrics")
+library("rpart")
+
 
 #Set Globals
 setwd("C:\\Users\\Administrator\\Documents\\GitHub\\BIkeData")
@@ -18,20 +20,21 @@ Train1 = subset(Train1, select = -casual)
 Train1 = subset(Train1, select = -registered)
 
 #Train Data
-model.svm = svm(count~., data=Train1)
-print(model.svm)
-summary(model.svm)
+model.rpart = rpart(count~., data=Train1)
+print(model.rpart)
+summary(model.rpart)
+plot()
 
 #model.glm = glm(count~., data=Train1)
 #print(model.glm)
 #summary(model.glm)
 
-#Predict using SVM model, Wirte back to Train to see results
-Predicted.Train.svm = cbind(Train, predict = as.integer(predict(model.svm, Train1[,-1], interval="predict")))
-Predicted.Test.svm = cbind(Test, predict = as.integer(predict(model.svm, Test[,-1], interval="predict")))
-Predicted.Test.svm$predict = ifelse(Predicted.Test.svm$predict < 0, 0, Predicted.Test.svm$predict)
+#Predict using tree model, Wirte back to Train to see results
+Predicted.Train.tree = cbind(Train, predict = as.integer(predict(model.rpart, Train1[,-1], interval="predict")))
+Predicted.Test.tree = cbind(Test, predict = as.integer(predict(model.rpart, Test[,-1], interval="predict")))
+Predicted.Test.tree$predict = ifelse(Predicted.Test.tree$predict < 0, 0, Predicted.Test.tree$predict)
 out = c("datetime", "predict")
-write.csv(Predicted.Test.svm[out], "data\\resultsSVM.csv", row.names = FALSE)
+write.csv(Predicted.Test.tree[out], "data\\resultsTree.csv", row.names = FALSE)
 
 
 
