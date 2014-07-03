@@ -29,8 +29,8 @@ def category(a):
 
 #Build a training data set
 stop = stopwords.words('english')
-with open("train.tsv") as csvfile:
-    records = csv.reader(csvfile, delimiter='\t')
+with open("data/train.csv") as csvfile:
+    records = csv.reader(csvfile, delimiter=',')
     next(records)
     t = [({word: True for word in nltk.word_tokenize(row[2]) if word not in stop}, (row[3]))for row in records]
 print('Train record count: ' + str(len(t)))    
@@ -39,8 +39,8 @@ train = t[:trainlen]
 test = t[trainlen:]
 
 ##test file data for later.  Might want to incorporate a database read
-with open("test.tsv") as csvfile:
-    records2 = csv.reader(csvfile, delimiter='\t')
+with open("data/test.csv") as csvfile:
+    records2 = csv.reader(csvfile, delimiter=',')
     next(records2)
     test2 = [({word: True for word in nltk.word_tokenize(row[2]) if word not in stop}, row[0])for row in records2]
 print('Test record count: ' + str(len(test2)))
