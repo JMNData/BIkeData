@@ -1,6 +1,7 @@
 #Add Libraries
 library("e1071")
 library("Metrics")
+library("randomForest")
 
 #Set Globals
 setwd("C:\\Users\\Administrator\\Documents\\GitHub\\BIkeData")
@@ -12,30 +13,25 @@ attach(Train)
 
 #REarrange Structure to match SVM input
 Test = cbind(Test, Hour = as.POSIXlt(Test[,1])$hour)
+Test = cbind(Test, WeekDay = weekdays(as.Date(Test$datetime)))
 Train1 = cbind(Train, Hour = as.POSIXlt(Train[,1])$hour)
-Train1 = Train1[2:13]
+Train1 = cbind(Train1, WeekDay = weekdays(as.Date(Train$datetime)))
+Train1 = Train1[2:14]
 Train1 = subset(Train1, select = -casual)
 Train1 = subset(Train1, select = -registered)
 
 #Train Data
-model.svm = svm(count~., data=Train1)
-print(model.svm)
-summary(model.svm)
-
-#model.glm = glm(count~., data=Train1)
-#print(model.glm)
-#summary(model.glm)
+model = randomForest(count~., data=Train1)
+print(model)
+summary(model)
+importance(model)
+plot(model)
+treesize(model)
+varImpPlot(model)
 
 #Predict using SVM model, Wirte back to Train to see results
-Predicted.Train.svm = cbind(Train, predict = as.integer(predict(model.svm, Train1[,-1], interval="predict")))
-Predicted.Test.svm = cbind(Test, predict = as.integer(predict(model.svm, Test[,-1], interval="predict")))
-Predicted.Test.svm$predict = ifelse(Predicted.Test.svm$predict < 0, 0, Predicted.Test.svm$predict)
+Predicted.Train = cbind(Train, predict = as.integer(predict(model, Train1[,-1], interval="predict")))
+Predicted.Test = cbind(Test, predict = as.integer(predict(model, Test[,-1], interval="predict")))
+Predicted.Test$predict = ifelse(Predicted.Test$predict < 0, 0, Predicted.Test$predict)
 out = c("datetime", "predict")
-write.csv(Predicted.Test.svm[out], "data\\resultsSVM.csv", row.names = FALSE)
-
-
-
-
-
-
-
+write.csv(Predicted.Test[out], "data\\resultsRF.csv", row.names = FALSE)
